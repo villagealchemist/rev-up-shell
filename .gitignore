@@ -1,0 +1,26 @@
+# Machine-local files and credentials
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.ssh/
+
+# Personal configuration; examples remain tracked
+MJ.Local.ps1
+local.zsh
+
+# Backups, histories, generated archives, and local development files
+*~
+*.bak
+*.backup*
+.zsh_history
+.bash_history
+*.zip
+*.tar
+*.tar.gz
+__pycache__/
+.venv/
+work/

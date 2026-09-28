@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Back up the managed shell configuration; no histories, repositories or home scan.
+set -euo pipefail
+umask 077
+if [[ $# -gt 1 || ${1-} == --help ]]; then
+    printf '%s\n' 'Usage: mj-backup [approved-destination-directory]' \
+        'Default: ~/.local/state/mj-wsl/exports (local storage only).' \
+        'Includes your managed shell scripts/settings. Keep credentials out of local.zsh.'
+    exit 0
+fi
+config_dir=${MJ_HOME:-"$HOME/.config/mj-wsl"}
+if [[ ! -r "$config_dir/shell/mj.zsh" ]]; then printf 'Managed profile not found: %s\n' "$config_dir" >&2; exit 1; fi
+destination=${1:-"$HOME/.local/state/mj-wsl/exports"}
+mkdir -p -- "$destination"
+destination=$(cd -- "$destination" && pwd -P)
+config_parent=$(cd -- "$(dirname -- "$config_dir")" && pwd -P)
+config_name=$(basename -- "$config_dir")
+case "$destination/" in
+    "$config_parent/$config_name/"*) printf '%s\n' 'Choose a backup destination outside the managed configuration directory.' >&2; exit 1 ;;
+esac
+backup_dir=$(mktemp -d "$destination/mj-wsl-$(date +%Y%m%d-%H%M%S)-XXXXXX")
+archive="$backup_dir/mj-wsl-config.tar.gz"
+if ! tar -czf "$archive" -C "$config_parent" "$config_name"; then
+    rm -f -- "$archive"
+    rmdir -- "$backup_dir"
+    printf '%s\n' 'Backup failed.' >&2
+    exit 1
+fi
+printf 'Saved shell configuration: %s\n' "$archive"
+printf '%s\n' 'This is not a backup of your repositories, installed packages, or complete WSL distribution.'

@@ -1,0 +1,25 @@
+# Personal settings for Rev Up WSL. The installer preserves your local.zsh.
+# Edit the installed copy with zedit, then run reload-profile.
+# Keep credentials in an approved credential manager, not this file.
+
+MJ_PROMPT_NAME='alchemist'
+MJ_GREETING=1
+
+# Optional: one executable name or full Linux path, without arguments.
+# An empty value uses installed code/code-insiders, then nano, then vi.
+MJ_EDITOR=''
+
+# Optional named directories. cproj lists them; cproj work enters one.
+# Paths are used only for navigation. No project code is sourced.
+typeset -gA MJ_PROJECTS=(
+  # work "$HOME/src/work"
+  # scratch "$HOME/src/scratch"
+)
+
+# Silence the SpongeBob greeting by setting MJ_GREETING=0 above, or:
+# export NO_MEOW=1
+# Disable color in the prompt, greeting, and listing shortcuts:
+# export NO_COLOR=1
+# Optional history sizes (history stays in your normal zsh history file):
+# HISTSIZE=50000
+# SAVEHIST=50000

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Open a WSL filesystem path in Windows Explorer using literal arguments.
+set -euo pipefail
+if [[ $# -gt 1 || ${1-} == --help ]]; then
+    printf '%s\n' 'Usage: wsl-open [existing-file-or-directory]' 'Defaults to the current directory. Requires Windows interop.'
+    exit 0
+fi
+target=${1:-.}
+if [[ ! -e "$target" ]]; then printf 'Path not found: %s\n' "$target" >&2; exit 1; fi
+for tool in wslpath explorer.exe; do
+    if ! command -v "$tool" >/dev/null 2>&1; then
+        printf '%s is unavailable. Windows/WSL interop may be disabled in this environment.\n' "$tool" >&2
+        exit 1
+    fi
+done
+windows_path=$(wslpath -a -w "$target")
+exec explorer.exe "$windows_path"

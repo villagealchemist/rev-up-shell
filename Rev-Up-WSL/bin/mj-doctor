@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Read-only checks. Does not print command history, environment dumps or secrets.
+set -u
+printf '%s\n' 'WSL KITCHEN CHECK' '================='
+if [[ -r /etc/os-release ]]; then
+    distro_name=$( ( . /etc/os-release; printf '%s' "${PRETTY_NAME:-unknown}" ) )
+else distro_name=unknown; fi
+printf 'Distribution: %s\n' "$distro_name"
+printf 'Kernel:       %s\n' "$(uname -r)"
+printf 'WSL name:     %s\n' "${WSL_DISTRO_NAME:-not detected}"
+printf 'Login shell:  %s (may differ from this interactive shell)\n' "${SHELL:-unknown}"
+if [[ -n ${WSL_INTEROP:-} ]]; then printf '%s\n' 'Interop:      WSL interop is advertised';
+else printf '%s\n' 'Interop:      not advertised in this session'; fi
+printf '\n%-16s %s\n' 'TOOL' 'LOCATION'
+for tool in zsh git python3 pip3 make gcc curl jq rg fdfind fd fzf batcat bat tmux \
+    node npm pnpm uv gh code docker kubectl terraform explorer.exe powershell.exe; do
+    resolved=$(command -v "$tool" 2>/dev/null || true)
+    if [[ -z "$resolved" ]]; then resolved='not found'; fi
+    printf '%-16s %s\n' "$tool" "$resolved"
+done
+config_dir=${MJ_HOME:-"$HOME/.config/mj-wsl"}
+printf '\nManaged setup: %s\n' "$config_dir"
+if [[ -r "$config_dir/shell/mj.zsh" ]]; then printf '%s\n' 'Main profile: present'; else printf '%s\n' 'Main profile: not installed at this location'; fi
+if [[ -r "$config_dir/shell/local.zsh" ]]; then printf '%s\n' 'Your settings: present'; fi
+printf '\n%s\n' 'Linux projects work best under ~/src (then push to your approved Git remote).' \
+    'A WSL filesystem is still VDI-local storage. Keep approved remote/backed-up copies.' \
+    'Missing cloud tools, Docker or editors are separate installation choices, not bootstrap failures.'

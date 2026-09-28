@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Read text from stdin (or arguments) and copy it to the Windows clipboard.
+set -euo pipefail
+if [[ ${1-} == --help ]]; then
+    printf '%s\n' 'Usage: command | wsl-copy' '       wsl-copy "some text"' 'Copies text to the Windows clipboard. Requires Windows PowerShell interop.'
+    exit 0
+fi
+if ! command -v powershell.exe >/dev/null 2>&1; then
+    printf '%s\n' 'powershell.exe is unavailable through WSL. Use the terminal clipboard command instead.' >&2
+    exit 1
+fi
+copy_text() {
+    powershell.exe -NoLogo -NoProfile -NonInteractive -Command \
+        '[Console]::InputEncoding = New-Object System.Text.UTF8Encoding($false); $text = [Console]::In.ReadToEnd(); Set-Clipboard -Value $text'
+}
+if [[ $# -gt 0 ]]; then
+    printf '%s' "$*" | copy_text
+elif [[ -t 0 ]]; then
+    printf '%s\n' 'Pipe text into wsl-copy or provide a text argument.' >&2
+    exit 1
+else
+    copy_text
+fi

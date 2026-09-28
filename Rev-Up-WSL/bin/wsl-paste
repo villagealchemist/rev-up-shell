@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Print Windows clipboard text as UTF-8 with LF line endings.
+set -euo pipefail
+if [[ $# -ne 0 ]]; then printf '%s\n' 'Usage: wsl-paste (no arguments)' >&2; exit 1; fi
+if ! command -v powershell.exe >/dev/null 2>&1; then
+    printf '%s\n' 'powershell.exe is unavailable through WSL. Use the terminal clipboard command instead.' >&2
+    exit 1
+fi
+exec powershell.exe -NoLogo -NoProfile -NonInteractive -Command \
+    '[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false); $text = Get-Clipboard -Raw; if ($null -ne $text) { [Console]::Write($text.Replace("`r`n", "`n")) }'
